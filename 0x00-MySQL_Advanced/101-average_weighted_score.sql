@@ -1,7 +1,7 @@
 -- Compute Average Weighted score for user without input
 
 DROP PROCEDURE IF EXISTS ComputeAverageWeightedScoreForUsers;
-DELIMITER $$
+DELIMITER //
 CREATE PROCEDURE ComputeAverageWeightedScoreForUsers()
 BEGIN
     UPDATE users as u,
@@ -11,8 +11,8 @@ BEGIN
          JOIN projects AS p ON c.project_id=p.id
          GROUP BY u.id);
      AS weighted_av SET u.average_score = weighted_av.wa
-     WHERE u.id = weighted_av.wa
+     WHERE u.id = weighted_av.id
 END
-$$
+//
 
 DELIMITER ;
