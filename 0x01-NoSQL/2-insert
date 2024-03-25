@@ -1,4 +1,4 @@
 // Insert a record in the school document
 
 
-db.my_db.school.insert({'name': 'Holberton school'})
+db.my_db.insert({'name': 'Holberton school'})
