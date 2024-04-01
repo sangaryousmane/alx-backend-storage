@@ -14,7 +14,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
-    def store(self, data: Union[int, bytes, str, float]) -> str:
+    def store(self, data: Union[str, bytes, int, float]) -> str:
         """Initial storage method
         """
         key = str(uuid.uuid4())
