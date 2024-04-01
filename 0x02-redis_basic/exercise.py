@@ -7,6 +7,34 @@ from typing import Union, Callable, Optional
 from functools import wraps
 
 
+def count_calls(method: Callable) -> Callable:
+    """ Measure the counts of each method
+    """
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """ Inner function for incrementing
+        """
+        key = method.__qualname__
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+    return wrapper
+
+
+def call_history(method: Callable) -> Callable:
+    """ A call history method
+    """
+    def wrapper(self, *args, **kwargs):
+        """ Inner wrapper
+        """
+        inputs_key = f"{method.__qualname__}:inputs"
+        outputs_key = f"{method.__qualname__}:outputs"
+        self._redis.rpush(inputs_key, str(args))
+        output = method(self, *args, **kwargs)
+        self._redis.rpush(outputs_key, str(output))
+        return output
+    return wrapper
+
+
 class Cache:
     """ Basic redis class
     """
@@ -26,21 +54,6 @@ class Cache:
             key = method.__qualname__
             self._redis.incr(key)
             return method(self, *args, **kwargs)
-        return wrapper
-
-    @staticmethod
-    def call_history(method: Callable) -> Callable:
-        """ A call history method
-        """
-        def wrapper(self, *args, **kwargs):
-            """ Inner wrapper
-            """
-            inputs_key = f"{method.__qualname__}:inputs"
-            outputs_key = f"{method.__qualname__}:outputs"
-            self._redis.rpush(inputs_key, str(args))
-            output = method(self, *args, **kwargs)
-            self._redis.rpush(outputs_key, str(output))
-            return output
         return wrapper
 
     @call_history
