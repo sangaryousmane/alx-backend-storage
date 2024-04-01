@@ -4,6 +4,7 @@
 import redis
 import uuid
 from typing import Union, Callable
+from functools import wraps
 
 
 class Cache:
@@ -14,6 +15,20 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @staticmethod
+    def count_calls(method: Callable) -> Callable:
+        """ Measure the counts of each method
+        """
+        @wraps(method)
+        def wrapper(self, *args, **kwargs):
+            """ Inner function for incrementing
+            """
+            key = method.__qualname__
+            self._redis.incr(key)
+            return method(self, *args, **kwargs)
+        return wrapper
+
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """Initial storage method
         """
@@ -21,15 +36,15 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Callable = None) -> Union[str, bytes, int, float]:
-        """ Get and return data"""
-        data = self._redis.get(key)
-
-        if data is None:
-            return None
-        if fn is not None:
-            return fn(data)
-        return data
+     def get(self, key: str, fn: Callable = None
+            )-> Union[str, bytes, int, float]:    
+         """ Get and return data"""
+         data = self._redis.get(key)
+         if data is None:
+             return None
+         if fn is not None:
+             return fn(data)
+         return data
 
     def get_str(self, key: str) -> Union[str, bytes]:
         """ Get string"""
