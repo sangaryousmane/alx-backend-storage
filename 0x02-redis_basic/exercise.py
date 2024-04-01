@@ -3,7 +3,7 @@
 """
 import redis
 import uuid
-from typing import Union
+from typing import Union, Callable
 
 
 class Cache:
@@ -11,7 +11,7 @@ class Cache:
     """
 
     def __init__(self):
-        self._redis = resid.Redis()
+        self._redis = redis.Redis()
         self._redis.flushdb()
 
     def store(self, data: Union[int, bytes, str, float]) -> str:
