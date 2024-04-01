@@ -28,6 +28,22 @@ class Cache:
             return method(self, *args, **kwargs)
         return wrapper
 
+    @staticmethod
+    def call_history(method: Callable) -> Callable:
+        """ A call history method
+        """
+        def wrapper(self, *args, **kwargs):
+            """ Inner wrapper
+            """
+            inputs_key = f"{method.__qualname__}:inputs"
+            outputs_key = f"{method.__qualname__}:outputs"
+            self._redis.rpush(inputs_key, str(args))
+            output = method(self, *args, **kwargs)
+            self._redis.rpush(outputs_key, str(output))
+            return output
+        return wrapper
+
+    @call_history
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """Initial storage method
