@@ -23,6 +23,7 @@ def count_calls(method: Callable) -> Callable:
 def call_history(method: Callable) -> Callable:
     """ A call history method
     """
+    @wraps(method)
     def wrapper(self, *args, **kwargs):
         """ Inner wrapper
         """
