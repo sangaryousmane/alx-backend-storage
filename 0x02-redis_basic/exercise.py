@@ -44,19 +44,6 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
-    @staticmethod
-    def count_calls(method: Callable) -> Callable:
-        """ Measure the counts of each method
-        """
-        @wraps(method)
-        def wrapper(self, *args, **kwargs):
-            """ Inner function for incrementing
-            """
-            key = method.__qualname__
-            self._redis.incr(key)
-            return method(self, *args, **kwargs)
-        return wrapper
-
     @call_history
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
