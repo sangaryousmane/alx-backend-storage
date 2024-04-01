@@ -3,7 +3,7 @@
 """
 import redis
 import uuid
-from typing import Union, Callable
+from typing import Union, Callable, Optional
 from functools import wraps
 
 
@@ -36,15 +36,15 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-     def get(self, key: str, fn: Callable = None
-            )-> Union[str, bytes, int, float]:    
-         """ Get and return data"""
-         data = self._redis.get(key)
-         if data is None:
-             return None
-         if fn is not None:
-             return fn(data)
-         return data
+    def get(self, key: str,
+            fn: Optional[Callable] = None) -> Union[str, bytes, int, float]:
+        '''
+            Get data from the cache.
+        '''
+        value = self._redis.get(key)
+        if fn:
+            value = fn(value)
+        return value
 
     def get_str(self, key: str) -> Union[str, bytes]:
         """ Get string"""
